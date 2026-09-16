@@ -1,12 +1,13 @@
-local Juego = require("Juego")
+Class = require 'lib.class'
 
-local juego
+require "Juego"
+
 
 function love.load()
     love.window.setMode(1280, 720)
     love.window.setTitle("Defensa de torre")
 
-    juego = Juego:new()
+    juego = Juego()
 end
 
 function love.update(dt)
@@ -24,3 +25,4 @@ end
 function love.mousepressed(x, y, button)
     juego:clicMouse(x, y, button)
 end
+

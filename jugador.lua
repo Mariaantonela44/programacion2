@@ -1,95 +1,87 @@
-local Jugador = {}
+Jugador = Class{}
 
-function Jugador:new(x, y)
-    local objeto = {}
-    setmetatable(objeto, {__index = self})
+function Jugador:init(x, y)
 
-    objeto.x = x
-    objeto.y = y
-    objeto.velocidad = 200
+    self.x = x
+    self.y = y
+    self.velocidad = 200
 
-    objeto.vidaMaxima = 100
-    objeto.vida = 100
-    objeto.radio = 20
+    self.vidaMaxima = 100
+    self.vida = 100
+    self.radio = 20
 
     -- DIRECCIÓN
-    objeto.direccionX = 1
-    objeto.direccionY = 0
-    objeto.direccion = "derecha"
+    self.direccionX = 1
+    self.direccionY = 0
+    self.direccion = "derecha"
 
     -- ATAQUE
-    objeto.danio = 60
-    objeto.alcanceAtaque = 70
-    objeto.atacando = false
-    objeto.ataqueHizoDanio = false
+    self.danio = 60
+    self.alcanceAtaque = 70
+    self.atacando = false
+    self.ataqueHizoDanio = false
 
     -- SPRITES DE CAMINAR
-    objeto.sprites = {}
+    self.sprites = {}
 
     -- FRENTE
-    objeto.sprites.frente = {}
+    self.sprites.frente = {}
     for i = 0, 3 do
-        objeto.sprites.frente[i + 1] =
+        self.sprites.frente[i + 1] =
             love.graphics.newImage("assets/jugador/frente/sprite_frente" .. i .. ".png")
     end
 
     -- ESPALDA
-    objeto.sprites.espalda = {}
+    self.sprites.espalda = {}
     for i = 0, 6 do
-        objeto.sprites.espalda[i + 1] =
+        self.sprites.espalda[i + 1] =
             love.graphics.newImage("assets/jugador/espalda/sprite_espalda" .. i .. ".png")
     end
 
     -- DERECHA
-    objeto.sprites.derecha = {}
+    self.sprites.derecha = {}
     for i = 0, 6 do
-        objeto.sprites.derecha[i + 1] =
+        self.sprites.derecha[i + 1] =
             love.graphics.newImage("assets/jugador/derecha/sprite_derecha" .. i .. ".png")
     end
 
     -- SPRITES DE ATAQUE
-    objeto.spritesAtaque = {}
+    self.spritesAtaque = {}
 
     -- ATAQUE FRENTE
-    objeto.spritesAtaque.frente = {}
+    self.spritesAtaque.frente = {}
     for i = 0, 3 do
-        objeto.spritesAtaque.frente[i + 1] =
+        self.spritesAtaque.frente[i + 1] =
             love.graphics.newImage("assets/jugador/ataque frente/sprite_ataque de frente" .. i .. ".png")
     end
 
     -- ATAQUE ESPALDA
-    objeto.spritesAtaque.espalda = {}
+    self.spritesAtaque.espalda = {}
     for i = 0, 4 do
-        objeto.spritesAtaque.espalda[i + 1] =
+        self.spritesAtaque.espalda[i + 1] =
             love.graphics.newImage("assets/jugador/ataque espalda/sprite_ataqueespalda" .. i .. ".png")
     end
 
     -- ATAQUE DERECHA
-    objeto.spritesAtaque.derecha = {}
+    self.spritesAtaque.derecha = {}
     for i = 0, 3 do
-        objeto.spritesAtaque.derecha[i + 1] =
-            love.graphics.newImage(
-                "assets/jugador/ataquederecho/sprite_ataquederecho" .. i .. ".png"
-            )
+        self.spritesAtaque.derecha[i + 1] =
+            love.graphics.newImage("assets/jugador/ataquederecho/sprite_ataquederecho" .. i .. ".png")
     end
 
     -- ANIMACIÓN
-    objeto.frameActual = 1
-    objeto.tiempoAnimacion = 0
-    objeto.velocidadAnimacion = 0.12
-    objeto.caminando = false
+    self.frameActual = 1
+    self.tiempoAnimacion = 0
+    self.velocidadAnimacion = 0.12
+    self.caminando = false
 
     -- SONIDO DE CAMINAR
-    objeto.caminata = love.audio.newSource(
-        "assets/sonidos/caminar.ogg",
-        "static"
-    )
-
-    return objeto
+    self.caminata = love.audio.newSource( "assets/sonidos/caminar.ogg", "static")
 end
 
 -- ACTUALIZAR
 function Jugador:actualizar(dt)
+
     local dx = 0
     local dy = 0
 
@@ -114,6 +106,7 @@ function Jugador:actualizar(dt)
 
     -- MOVER
     if dx ~= 0 or dy ~= 0 then
+
         self.caminando = true
 
         local distancia = math.sqrt(dx * dx + dy * dy)
@@ -139,21 +132,27 @@ function Jugador:actualizar(dt)
 
     -- SONIDO DE CAMINAR
     if self.caminando and not self.atacando then
+
         if not self.caminata:isPlaying() then
             self.caminata:play()
         end
+
     else
+
         if self.caminata:isPlaying() then
             self.caminata:stop()
         end
+
     end
 
     -- ANIMACIÓN DE CAMINAR
     if self.caminando and not self.atacando then
+
         self.tiempoAnimacion =
             self.tiempoAnimacion + dt
 
         if self.tiempoAnimacion >= self.velocidadAnimacion then
+
             self.tiempoAnimacion = 0
             self.frameActual = self.frameActual + 1
 
@@ -165,12 +164,15 @@ function Jugador:actualizar(dt)
         end
 
     elseif not self.atacando then
+
         self.frameActual = 1
         self.tiempoAnimacion = 0
+
     end
 
     -- ANIMACIÓN DE ATAQUE
     if self.atacando then
+
         self.tiempoAnimacion =
             self.tiempoAnimacion + dt
 
@@ -178,33 +180,43 @@ function Jugador:actualizar(dt)
             self.spritesAtaque[self.direccion]
 
         if sprites ~= nil then
+
             if self.tiempoAnimacion >= self.velocidadAnimacion then
+
                 self.tiempoAnimacion = 0
                 self.frameActual = self.frameActual + 1
 
                 if self.frameActual > #sprites then
+
                     self.frameActual = 1
                     self.atacando = false
                     self.ataqueHizoDanio = false
+
                 end
             end
+
         else
+
             self.atacando = false
+
         end
     end
 end
 
 -- RECIBIR DAÑO
 function Jugador:recibirDanio(danio)
+
     self.vida = self.vida - danio
 
     if self.vida < 0 then
         self.vida = 0
     end
+
 end
 
 -- ATAQUE
 function Jugador:atacar(enemigos)
+
     if self.atacando then
         return
     end
@@ -216,6 +228,7 @@ function Jugador:atacar(enemigos)
 
     -- HACER DAÑO
     for i = 1, #enemigos do
+
         local enemigo = enemigos[i]
 
         local dx = enemigo.x - self.x
@@ -226,11 +239,13 @@ function Jugador:atacar(enemigos)
         if distancia <= self.alcanceAtaque then
             enemigo:recibirDanio(self.danio)
         end
+
     end
 end
 
 -- DIBUJAR
 function Jugador:dibujar()
+
     love.graphics.setColor(1, 1, 1)
 
     local sprites
@@ -242,18 +257,21 @@ function Jugador:dibujar()
     end
 
     if sprites ~= nil then
+
         local sprite = sprites[self.frameActual]
 
         if sprite ~= nil then
+
             local escalaX = 1
             local escala = 0.3
 
             -- ESPEJAR LATERAL
-            if self.direccion == "derecha"and self.direccionX < 0 then
+            if self.direccion == "derecha" and self.direccionX < 0 then
                 escalaX = -1
             end
 
-            love.graphics.draw( sprite,  self.x, self.y, 0,escalaX * escala, escala, sprite:getWidth() / 2, sprite:getHeight() / 2)
+            love.graphics.draw( sprite, self.x, self.y, 0, escalaX * escala, escala, sprite:getWidth() / 2, sprite:getHeight() / 2 )
+
         end
     end
 
@@ -263,11 +281,9 @@ function Jugador:dibujar()
 
     love.graphics.setColor(0.1, 0.1, 0.1)
 
-    love.graphics.rectangle("fill",self.x - 25, self.y - 35,anchoBarra, 5)
+    love.graphics.rectangle( "fill", self.x - 25, self.y - 35, anchoBarra, 5)
 
     love.graphics.setColor(0.1, 0.8, 0.1)
 
-    love.graphics.rectangle( "fill", self.x - 25, self.y - 35, anchoBarra * porcentaje,5)
+    love.graphics.rectangle( "fill", self.x - 25, self.y - 35, anchoBarra * porcentaje,  5)
 end
-
-return Jugador

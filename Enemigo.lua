@@ -1,124 +1,99 @@
-local Enemigo = {}
+Enemigo = Class{}
 
-function Enemigo:new(x, y, camino)
+function Enemigo:init(x, y, camino)
 
-    local objeto = {}
+    self.x = x
+    self.y = y
 
-    setmetatable(objeto, {__index = self})
+    self.camino = camino
+    self.puntoActual = 1
 
-    objeto.x = x
-    objeto.y = y
+    self.velocidad = 80
+    self.radio = 20
+    self.vidaMaxima = 100
+    self.vida = 100
 
-    objeto.camino = camino
-    objeto.puntoActual = 1
-
-    objeto.velocidad = 80
-    objeto.radio = 20
-    objeto.vidaMaxima = 100
-    objeto.vida = 100
-
-    objeto.llegoBase = false
+    self.llegoBase = false
 
     -- ATAQUE
-    objeto.danio = 10
-    objeto.rangoAtaque = 40
-    objeto.tiempoAtaque = 0
-    objeto.velocidadAtaque = 1
+    self.danio = 10
+    self.rangoAtaque = 40
+    self.tiempoAtaque = 0
+    self.velocidadAtaque = 1
 
-    objeto.torreObjetivo = nil
+    self.torreObjetivo = nil
 
     -- Cuando encuentra un río, vuelve al camino
-    objeto.siguiendoCamino = true
+    self.siguiendoCamino = true
 
-    objeto.atacando = false
-    objeto.frameAtaque = 1
-    objeto.tiempoAtaqueAnimacion = 0
-    objeto.velocidadAtaqueAnimacion = 0.12
+    self.atacando = false
+    self.frameAtaque = 1
+    self.tiempoAtaqueAnimacion = 0
+    self.velocidadAtaqueAnimacion = 0.12
 
     -- DIRECCIÓN
-    objeto.direccionX = 1
-    objeto.direccionY = 0
-    objeto.direccion = "derecha"
+    self.direccionX = 1
+    self.direccionY = 0
+    self.direccion = "derecha"
 
     -- SPRITES DE CAMINAR
-    objeto.sprites = {}
+    self.sprites = {}
 
     -- FRENTE
-    objeto.sprites.frente = {}
+    self.sprites.frente = {}
 
     for i = 0, 5 do
-        objeto.sprites.frente[i + 1] =
-            love.graphics.newImage(
-                "assets/enemigo/caminar de frente/sprite_caminarfrente" .. i .. ".png"
-            )
+        self.sprites.frente[i + 1] =
+            love.graphics.newImage("assets/enemigo/caminar de frente/sprite_caminarfrente" .. i .. ".png")
     end
 
     -- ESPALDA
-    objeto.sprites.espalda = {}
+    self.sprites.espalda = {}
 
     for i = 0, 4 do
-        objeto.sprites.espalda[i + 1] =
-            love.graphics.newImage(
-                "assets/enemigo/espalda/sprite_espalda" .. i .. ".png"
-            )
+        self.sprites.espalda[i + 1] = love.graphics.newImage( "assets/enemigo/espalda/sprite_espalda" .. i .. ".png")
     end
 
     -- DERECHA
-    objeto.sprites.derecha = {}
+    self.sprites.derecha = {}
 
     for i = 0, 4 do
-        objeto.sprites.derecha[i + 1] =
-            love.graphics.newImage(
-                "assets/enemigo/camino derecho/sprite_caminando derecho " .. i .. ".png"
-            )
+        self.sprites.derecha[i + 1] = love.graphics.newImage( "assets/enemigo/camino derecho/sprite_caminando derecho " .. i .. ".png"  )
     end
 
     -- SPRITES DE ATAQUE
-    objeto.spritesAtaque = {}
+    self.spritesAtaque = {}
 
     -- ATAQUE FRENTE
-    objeto.spritesAtaque.frente = {}
+    self.spritesAtaque.frente = {}
 
     for i = 0, 3 do
-        objeto.spritesAtaque.frente[i + 1] =
-            love.graphics.newImage(
-                "assets/enemigo/ataque frente enemigo/sprite_ataque frente" .. i .. ".png"
-            )
+        self.spritesAtaque.frente[i + 1] = love.graphics.newImage(  "assets/enemigo/ataque frente enemigo/sprite_ataque frente" .. i .. ".png" )
     end
 
     -- ATAQUE ESPALDA
-    objeto.spritesAtaque.espalda = {}
+    self.spritesAtaque.espalda = {}
 
     for i = 0, 3 do
-        objeto.spritesAtaque.espalda[i + 1] =
-            love.graphics.newImage(
-                "assets/enemigo/ataque espalda/sprite_ataque espada" .. i .. ".png"
-            )
+        self.spritesAtaque.espalda[i + 1] = love.graphics.newImage( "assets/enemigo/ataque espalda/sprite_ataque espada" .. i .. ".png")
     end
 
     -- ATAQUE DERECHA
-    objeto.spritesAtaque.derecha = {}
+    self.spritesAtaque.derecha = {}
 
     for i = 0, 3 do
-        objeto.spritesAtaque.derecha[i + 1] =
-            love.graphics.newImage(
-                "assets/enemigo/ataque derecho/sprite_ataque derecho" .. i .. ".png"
-            )
+        self.spritesAtaque.derecha[i + 1] = love.graphics.newImage( "assets/enemigo/ataque derecho/sprite_ataque derecho" .. i .. ".png" )
     end
 
     -- ANIMACIÓN DE CAMINAR
-    objeto.frameActual = 1
-    objeto.tiempoAnimacion = 0
-    objeto.velocidadAnimacion = 0.12
-    objeto.caminando = false
+    self.frameActual = 1
+    self.tiempoAnimacion = 0
+    self.velocidadAnimacion = 0.12
+    self.caminando = false
 
     -- SONIDO DE CAMINAR
-    objeto.caminata = love.audio.newSource(
-        "assets/sonidos/caminar.ogg",
-        "static"
-    )
+    self.caminata = love.audio.newSource("assets/sonidos/caminar.ogg","static")
 
-    return objeto
 end
 
 
@@ -203,10 +178,10 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
         if torre.vida > 0 then
 
             local dx = torre.x - self.x
-
             local dy = torre.y - self.y
 
-            local distancia =  math.sqrt( dx * dx + dy * dy)
+            local distancia =
+                math.sqrt(dx * dx + dy * dy)
 
             if distancia < distanciaMenor then
 
@@ -224,8 +199,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
         if self.torreObjetivo == nil then
 
-            self.torreObjetivo =
-                torreCercana
+            self.torreObjetivo = torreCercana
 
         end
 
@@ -250,15 +224,16 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
     -- INTENTAR ACERCARSE A LA TORRE
 
-    if self.torreObjetivo ~= nil and self.torreObjetivo.vida > 0 and not self.siguiendoCamino then
+    if self.torreObjetivo ~= nil
+    and self.torreObjetivo.vida > 0
+    and not self.siguiendoCamino then
 
-        local torre =self.torreObjetivo
+        local torre = self.torreObjetivo
 
-        local dx =  torre.x - self.x
+        local dx = torre.x - self.x
+        local dy = torre.y - self.y
 
-        local dy =  torre.y - self.y
-
-        local distancia = math.sqrt(  dx * dx + dy * dy)
+        local distancia = math.sqrt(dx * dx + dy * dy)
 
 
         -- ESTÁ CERCA DE LA TORRE
@@ -267,7 +242,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
             if distancia > 0 then
 
-                self:actualizarDireccion( dx / distancia, dy / distancia)
+                self:actualizarDireccion( dx / distancia, dy / distancia )
 
             end
 
@@ -278,15 +253,16 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
                 self.frameAtaque = 1
                 self.tiempoAtaqueAnimacion = 0
 
-                torre:recibirDanio(  self.danio )
+                torre:recibirDanio(self.danio)
 
-                self.tiempoAtaque = self.velocidadAtaque
+                self.tiempoAtaque =
+                    self.velocidadAtaque
 
                 if self.caminata:isPlaying() then
                     self.caminata:stop()
                 end
 
-                print(  "El enemigo golpeo una torre")
+                print("El enemigo golpeo una torre")
 
             end
 
@@ -300,19 +276,19 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
         if distancia > 0 then
 
             local dirX = dx / distancia
-
             local dirY = dy / distancia
 
-            local nuevoX = self.x +  dirX * self.velocidad * dt
+            local nuevoX =self.x + dirX * self.velocidad * dt
 
-            local nuevoY = self.y +  dirY *self.velocidad * dt
+            local nuevoY = self.y + dirY * self.velocidad * dt
 
 
             -- EL CAMINO DIRECTO ES VÁLIDO
 
-            if posicionValida == nil or posicionValida( nuevoX, nuevoY ) then
+            if posicionValida == nil
+            or posicionValida(nuevoX, nuevoY) then
 
-                self:actualizarDireccion( dirX, dirY )
+                self:actualizarDireccion(dirX, dirY)
 
                 self.x = nuevoX
                 self.y = nuevoY
@@ -328,7 +304,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
             self.siguiendoCamino = true
 
-            print( "El enemigo encontro agua y vuelve al camino" )
+            print( "El enemigo encontro agua y vuelve al camino")
 
         end
 
@@ -338,8 +314,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
     -- ATAQUE AL JUGADOR
 
     local dxJugador = jugador.x - self.x
-
-    local dyJugador =jugador.y - self.y
+    local dyJugador = jugador.y - self.y
 
     local distanciaJugador =
         math.sqrt( dxJugador * dxJugador + dyJugador * dyJugador )
@@ -347,7 +322,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
     if distanciaJugador > 0 then
 
-        self:actualizarDireccion( dxJugador / distanciaJugador, dyJugador / distanciaJugador )
+        self:actualizarDireccion( dxJugador / distanciaJugador,  dyJugador / distanciaJugador)
 
     end
 
@@ -362,16 +337,15 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
             self.tiempoAtaqueAnimacion = 0
 
-            jugador:recibirDanio( self.danio )
+            jugador:recibirDanio(self.danio)
 
-            self.tiempoAtaque =
-                self.velocidadAtaque
+            self.tiempoAtaque = self.velocidadAtaque
 
             if self.caminata:isPlaying() then
                 self.caminata:stop()
             end
 
-            print( "El enemigo golpeo al jugador" )
+            print("El enemigo golpeo al jugador")
 
         end
 
@@ -381,7 +355,8 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
     -- SEGUIR EL CAMINO
 
-    if self.camino == nil or #self.camino == 0 then
+    if self.camino == nil
+    or #self.camino == 0 then
 
         if self.caminata:isPlaying() then
             self.caminata:stop()
@@ -391,7 +366,8 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
     end
 
 
-    local punto = self.camino[self.puntoActual]
+    local punto =
+        self.camino[self.puntoActual]
 
 
     if punto == nil then
@@ -407,17 +383,17 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
 
     local dx = punto.x - self.x
-
     local dy = punto.y - self.y
 
-    local distancia =  math.sqrt( dx * dx + dy * dy )
+    local distancia = math.sqrt(dx * dx + dy * dy)
 
 
     -- LLEGÓ AL PUNTO
 
     if distancia < 5 then
 
-        self.puntoActual = self.puntoActual + 1
+        self.puntoActual =
+            self.puntoActual + 1
 
 
         if self.puntoActual > #self.camino then
@@ -432,13 +408,13 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
         end
 
 
-        punto = self.camino[self.puntoActual]
+        punto =
+            self.camino[self.puntoActual]
 
         dx = punto.x - self.x
-
         dy = punto.y - self.y
 
-        distancia = math.sqrt( dx * dx + dy * dy )
+        distancia = math.sqrt(dx * dx + dy * dy)
 
     end
 
@@ -450,17 +426,18 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
         dx = dx / distancia
         dy = dy / distancia
 
-        self:actualizarDireccion(dx,dy)
+        self:actualizarDireccion(dx, dy)
 
 
-        local nuevoX = self.x + dx * self.velocidad * dt
+        local nuevoX =  self.x + dx * self.velocidad * dt
 
         local nuevoY = self.y + dy * self.velocidad * dt
 
 
         -- COMPROBAR AGUA
 
-        if posicionValida == nil or posicionValida( nuevoX, nuevoY) then
+        if posicionValida == nil
+        or posicionValida(nuevoX, nuevoY) then
 
             self.x = nuevoX
             self.y = nuevoY
@@ -483,10 +460,10 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
         local torre = self.torreObjetivo
 
         local dxTorre = torre.x - self.x
-
         local dyTorre = torre.y - self.y
 
-        local distanciaTorre = math.sqrt(  dxTorre * dxTorre + dyTorre * dyTorre )
+        local distanciaTorre =
+            math.sqrt( dxTorre * dxTorre + dyTorre * dyTorre)
 
 
         if distanciaTorre <= self.rangoAtaque then
@@ -495,19 +472,20 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
         elseif distanciaTorre > 0 then
 
-            local dirTorreX =dxTorre / distanciaTorre
+            local dirTorreX = dxTorre / distanciaTorre
 
-            local dirTorreY = dyTorre / distanciaTorre
-
-
-            local pruebaX = self.x + dirTorreX * math.min( 10, self.velocidad * dt )
-
-            local pruebaY = self.y + dirTorreY * math.min( 10,self.velocidad * dt)
+            local dirTorreY =dyTorre / distanciaTorre
 
 
-            -- Si desde este punto ya puede ir hacia la torre, deja el camino.
+            local pruebaX =self.x + dirTorreX * math.min(10, self.velocidad * dt)
 
-            if posicionValida == nil or posicionValida( pruebaX, pruebaY) then
+            local pruebaY = self.y + dirTorreY *  math.min(10, self.velocidad * dt)
+
+
+            -- Si desde este punto ya puede ir hacia la torre,
+            -- deja el camino.
+
+            if posicionValida == nil or posicionValida(pruebaX, pruebaY) then
 
                 self.siguiendoCamino = false
 
@@ -537,21 +515,17 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
     if self.caminando then
 
-        self.tiempoAnimacion =
-            self.tiempoAnimacion + dt
+        self.tiempoAnimacion = self.tiempoAnimacion + dt
 
 
-        if self.tiempoAnimacion >=
-            self.velocidadAnimacion then
+        if self.tiempoAnimacion >=self.velocidadAnimacion then
 
             self.tiempoAnimacion = 0
 
-            self.frameActual =
-                self.frameActual + 1
+            self.frameActual = self.frameActual + 1
 
 
-            local sprites =
-                self.sprites[self.direccion]
+            local sprites = self.sprites[self.direccion]
 
 
             if sprites ~= nil then
@@ -607,12 +581,14 @@ function Enemigo:dibujar()
 
     if self.atacando then
 
-        sprites = self.spritesAtaque[self.direccion]
+        sprites =self.spritesAtaque[self.direccion]
+
         frame = self.frameAtaque
 
     else
 
         sprites = self.sprites[self.direccion]
+
         frame = self.frameActual
 
     end
@@ -627,14 +603,14 @@ function Enemigo:dibujar()
             local escalaX = 1
             local escala = 0.5
 
+            if self.direccion == "derecha"
+            and self.direccionX < 0 then
 
-            if self.direccion == "derecha" and self.direccionX < 0 then
                 escalaX = -1
 
             end
 
-
-            love.graphics.draw(sprite,self.x,self.y,0,escalaX * escala,escala,sprite:getWidth() / 2,sprite:getHeight() / 2)
+            love.graphics.draw(  sprite, self.x,self.y,  0,  escalaX * escala, escala, sprite:getWidth() / 2,  sprite:getHeight() / 2)
 
         end
 
@@ -645,21 +621,19 @@ function Enemigo:dibujar()
 
     local anchoBarra = 40
 
-    local vidaPorcentaje = self.vida / self.vidaMaxima
+    local vidaPorcentaje =
+        self.vida / self.vidaMaxima
 
 
-    love.graphics.setColor( 0.1, 0.1, 0.1 )
+    love.graphics.setColor( 0.1, 0.1, 0.1)
 
 
-    love.graphics.rectangle( "fill", self.x - 20, self.y - 30,  anchoBarra,5)
+    love.graphics.rectangle( "fill", self.x - 20, self.y - 30, anchoBarra, 5)
 
 
-    love.graphics.setColor( 0.1, 0.8, 0.1)
+    love.graphics.setColor( 0.1,0.8, 0. )
 
 
-    love.graphics.rectangle( "fill",self.x - 20, self.y - 30, anchoBarra * vidaPorcentaje, 5)
+    love.graphics.rectangle( "fill", self.x - 20, self.y - 30, anchoBarra * vidaPorcentaje, 5)
 
 end
-
-
-return Enemigo

@@ -1,42 +1,26 @@
-local Enemigo = require("Enemigo")
+require "Enemigo"
 
-local GestorOleadas = {}
+GestorOleadas = Class{}
 
-function GestorOleadas:new()
+function GestorOleadas:init()
 
-    local objeto = {}
+    self.numeroOleada = 1
+    self.estado = "preparacion"
 
-    setmetatable(objeto, {__index = self})
+    self.tiempoPreparacion = 20
+    self.tiempoEntreOleadas = 15
+    self.tiempo = 20
 
-    -- Numero de la oleada
-    objeto.numeroOleada = 1
+    self.tiempoGeneracion = 0
+    self.intervalo = 2
 
-    -- Estado de la oleada
-    objeto.estado = "preparacion"
+    self.enemigosGenerados = 0
+    self.enemigosPorOleada = 5
 
-    -- Tiempo de preparacion inicial
-    objeto.tiempoPreparacion = 20
-
-    -- Tiempo entre oleadas
-    objeto.tiempoEntreOleadas = 15
-
-    -- Tiempo que falta
-    objeto.tiempo = 20
-
-    -- Generacion de enemigos
-    objeto.tiempoGeneracion = 0
-    objeto.intervalo = 2
-
-    objeto.enemigosGenerados = 0
-    objeto.enemigosPorOleada = 5
-
-    return objeto
 end
 
 
 function GestorOleadas:actualizar(dt, enemigos, camino)
-
-    -- TIEMPO DE PREPARACION
 
     if self.estado == "preparacion" then
 
@@ -45,20 +29,21 @@ function GestorOleadas:actualizar(dt, enemigos, camino)
         if self.tiempo <= 0 then
 
             self.estado = "oleada"
-
             self.tiempo = 0
             self.enemigosGenerados = 0
             self.tiempoGeneracion = 0
 
+            self.enemigosPorOleada = 5 + (self.numeroOleada - 1) * 2
+
+            self.intervalo = math.max( 0.5, 2 - (self.numeroOleada - 1) * 0.15)
+
             print("Comienza la oleada " .. self.numeroOleada)
+
         end
 
         return
     end
 
-
-
-    -- GENERAR ENEMIGOS
 
     if self.estado == "oleada" then
 
@@ -72,21 +57,20 @@ function GestorOleadas:actualizar(dt, enemigos, camino)
             if self.enemigosGenerados <
                 self.enemigosPorOleada then
 
-                local enemigo = Enemigo:new( camino[1].x,camino[1].y,camino)
+                local enemigo = Enemigo( camino[1].x,  camino[1].y,camino)
 
-                table.insert( enemigos, enemigo)
+                enemigo.velocidad = 80 + (self.numeroOleada - 1) * 5
 
-                self.enemigosGenerados =
-                    self.enemigosGenerados + 1
+                table.insert(enemigos, enemigo)
+
+                self.enemigosGenerados = self.enemigosGenerados + 1
 
             end
         end
 
 
-       --ENEMIGOS GENERADOS
-
-        if self.enemigosGenerados >=self.enemigosPorOleada then
-               -- Esperamos a que mueran o lleguen
+        if self.enemigosGenerados >=
+            self.enemigosPorOleada then
 
             if #enemigos == 0 then
 
@@ -96,23 +80,13 @@ function GestorOleadas:actualizar(dt, enemigos, camino)
 
                 self.enemigosGenerados = 0
 
-                -- Cada oleada tiene 2 enemigos mas
-                self.enemigosPorOleada = self.enemigosPorOleada + 2
-
-                -- Los enemigos aparecen un poco
-                -- mas rapido
-                self.intervalo = math.max( 0.5, self.intervalo - 0.1)
-
-                -- Comenzar periodo de estrategia
                 self.estado = "preparacion"
-
                 self.tiempo = self.tiempoEntreOleadas
 
-                print( "Preparacion para la oleada ".. self.numeroOleada)
+                print( "Preparacion para la oleada " .. self.numeroOleada )
+
             end
         end
     end
 
 end
-
-return GestorOleadas
