@@ -11,18 +11,19 @@ function love.load()
 end
 
 function love.update(dt)
-    juego:actualizar(dt)
+      juego.maquinaEstado:actualizar(dt)
 end
 
 function love.draw()
-    juego:dibujar()
+    juego.maquinaEstado:dibujar()
 end
 
 function love.keypressed(key)
-    juego:teclaPresionada(key)
+    juego.maquinaEstado:teclaPresionada(key)
 end
 
 function love.mousepressed(x, y, button)
-    juego:clicMouse(x, y, button)
+    juego.maquinaEstado:clicMouse(x, y, button)
 end
+
 
