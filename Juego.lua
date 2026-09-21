@@ -490,12 +490,69 @@ function Juego:clicMouse(x,y,boton)
     end
 end
 
-function Juego:dibujarJuego()
+-- CÁMARA
+
+function Juego:actualizarCamara()
+
+    local anchoPantalla = love.graphics.getWidth()
+    local altoPantalla = love.graphics.getHeight()
+
+    local anchoMapa = self.mapa:getWidth()
+    local altoMapa = self.mapa:getHeight()
+
+    local escala = math.max(
+        anchoPantalla / anchoMapa,
+        altoPantalla / altoMapa
+    )
+
+    local mapaAnchoReal = anchoMapa * escala
+    local mapaAltoReal = altoMapa * escala
+
+    local jugadorX = self.jugador.x * escala
+    local jugadorY = self.jugador.y * escala
+
+    local centroX = jugadorX
+    local centroY = jugadorY
+
+    self.camaraX = centroX - anchoPantalla / 2
+    self.camaraY = centroY - altoPantalla / 2
+
+    local mapaX = (anchoPantalla - mapaAnchoReal) / 2
+    local mapaY = (altoPantalla - mapaAltoReal) / 2
+
+    local minimoX = mapaX
+    local minimoY = mapaY
+
+    local maximoX = mapaX + mapaAnchoReal - anchoPantalla
+    local maximoY = mapaY + mapaAltoReal - altoPantalla
+
+    if mapaAnchoReal <= anchoPantalla then
+        self.camaraX = 0
+    else
+        self.camaraX = math.max( minimoX,  math.min(self.camaraX,maximoX))
+    end
+
+    if mapaAltoReal <= altoPantalla then
+        self.camaraY = 0
+    else
+        self.camaraY = math.max( minimoY, math.min(self.camaraY,maximoY)
+        )
+    end
+
+end
+
+-- DIBUJO 2: MUNDO
+function Juego:dibujarMundo()
 
     local anchoPantalla,altoPantalla,anchoMapa,altoMapa,escala,mapaX,mapaY = self:obtenerDatosMapa()
 
+    love.graphics.push()
+
+    love.graphics.translate( -self.camaraX,-self.camaraY)
+
     love.graphics.setColor(1,1,1,1)
-    love.graphics.draw(self.mapa,mapaX,mapaY,0,escala,escala)
+
+    love.graphics.draw(  self.mapa, mapaX, mapaY, 0,escala, escala)
 
     love.graphics.setColor(1,1,1,1)
 
@@ -507,9 +564,52 @@ function Juego:dibujarJuego()
         self.torres[i]:dibujar()
     end
 
+    love.graphics.pop()
+
+end
+
+
+-- DIBUJO 1: JUGADOR + CÁMARA
+
+function Juego:dibujarJugadorCamara()
+
+    local anchoPantalla = love.graphics.getWidth()
+    local altoPantalla = love.graphics.getHeight()
+
+    local jugadorX = self.jugador.x - self.camaraX
+    local jugadorY = self.jugador.y - self.camaraY
+
+    love.graphics.push()
+
+    love.graphics.translate( jugadorX - self.jugador.x,jugadorY - self.jugador.y
+    )
+
     self.jugador:dibujar()
 
+    love.graphics.pop()
+
+end
+
+
+function Juego:dibujarJuego()
+
+    self:actualizarCamara()
+
+    -- DIBUJO 2 MAPA + ENEMIGOS + TORRES
+
+    self:dibujarMundo()
+
+
+    -- DIBUJO 1 JUGADOR + CÁMARA
+
+    self:dibujarJugadorCamara()
+
+
+    -- INVENTARIO
     self.inventario:dibujar(self.dinero)
+    --HUD
+    
+    local anchoPantalla = love.graphics.getWidth()
 
     love.graphics.setColor(1,1,1)
 
