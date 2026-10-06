@@ -65,7 +65,7 @@ if danio < 0 then
 end
 
 self.vida = self.vida - danio
-
+Eventos.emitir("torre_recibio_danio",self,danio,danioOriginal)
 
 end
 
@@ -146,17 +146,10 @@ elseif self.estado == "ataque" then
             -- CREAR PROYECTIL
             if self.objetivoActual ~= nil then
 
-                local proyectil = Proyectil(
-                    self.x,
-                    self.y,
-                    self.objetivoActual,
-                    self.danio
-                )
+                local proyectil = Proyectil(self.x,self.y,self.objetivoActual,self.danio)
 
-                table.insert(
-                    self.proyectiles,
-                    proyectil
-                )
+                table.insert(self.proyectiles,proyectil)
+                Eventos.emitir("torre_disparo",self,self.objetivoActual,self.danio)
             end
 
             -- Volver a idle

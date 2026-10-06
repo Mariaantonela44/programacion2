@@ -225,7 +225,7 @@ function Jugador:atacar(enemigos)
     self.frameActual = 1
     self.tiempoAnimacion = 0
     self.ataqueHizoDanio = false
-
+    Eventos.emitir("jugador_ataco",self)
     -- HACER DAÑO
     for i = 1, #enemigos do
 
@@ -238,6 +238,7 @@ function Jugador:atacar(enemigos)
 
         if distancia <= self.alcanceAtaque then
             enemigo:recibirDanio(self.danio)
+                Eventos.emitir("jugador_danio_enemigo",self,enemigo,self.danio)
         end
 
     end

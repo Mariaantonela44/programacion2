@@ -10,6 +10,7 @@ require "estados"
 require "EstadoComienzo"
 require "EstadoJugando"
 require "EstadoFinalizacion"
+require "Eventos"
 
 Juego = Class{}
 
@@ -88,7 +89,51 @@ function Juego:init()
     self.GolpeGeneradoJugador = love.audio.newSource("assets/sonidos/golpe.ogg","static")
     self.GolpeGeneradoOrco = love.audio.newSource("assets/sonidos/golpe1.ogg","static")
     self.TiroTorreta = love.audio.newSource("assets/sonidos/tiro.ogg","static")
+    Eventos.on("enemigo_muerto", function(enemigo)
+    print("EVENTO: Enemigo muerto")
+    end)
 
+    Eventos.on("enemigo_llego_base", function(enemigo)
+        print("EVENTO: Un enemigo llegó a la base")
+    end)
+
+    Eventos.on("jugador_recibio_danio", function(jugador, danio)
+        print("EVENTO: El jugador recibió " .. danio .. " de daño")
+    end)
+
+    Eventos.on("jugador_muerto", function(jugador)
+        print("EVENTO: El jugador murió")
+    end)
+
+    Eventos.on("torre_destruida", function(torre)
+        print("EVENTO: Una torre fue destruida")
+    end)
+
+    Eventos.on("torre_recibio_danio", function(torre, danio)
+        print("EVENTO: Torre recibió " .. danio .. " de daño")
+    end)
+
+    Eventos.on("torre_disparo", function(torre, enemigo, danio)
+        print("EVENTO: Torre disparó")
+    end)
+
+    Eventos.on("jugador_ataco", function(jugador)
+        print("EVENTO: El jugador atacó")
+    end)
+
+    Eventos.on("jugador_danio_enemigo", function(jugador, enemigo, danio)
+        print("EVENTO: Jugador hizo " .. danio .. " de daño")
+    end)
+
+    Eventos.on("victoria", function(juego)
+        print("EVENTO: VICTORIA")
+    end)
+
+    Eventos.on("derrota", function(juego, motivo)
+
+        print("EVENTO: DERROTA - " .. motivo)
+
+    end)
     self.musicaJuego:setLooping(true)
     self.musicaVictoria:setLooping(false)
     self.musicaDerrota:setLooping(false)
@@ -289,6 +334,7 @@ function Juego:actualizarJuego(dt)
                 self.jugador.vida = self.jugador.vida - 10
                 self.tiempoDanioJugador = 1
 
+                Eventos.emitir("jugador_recibio_danio",self.jugador,10)
                 self.GolpeGeneradoOrco:stop()
                 self.GolpeGeneradoOrco:play()
 
@@ -300,9 +346,10 @@ function Juego:actualizarJuego(dt)
                 if self.jugador.vida <= 0 then
 
                     self.jugador.vida = 0
+                    Eventos.emitir("jugador_muerto",self.jugador)
                     self.derrota = true
                     self.motivoDerrota = "El enemigo mató al jugador"
-
+                    Eventos.emitir("derrota",self,self.motivoDerrota)
                     self:finalizarPartida()
 
                     return
@@ -312,9 +359,10 @@ function Juego:actualizarJuego(dt)
 
         if enemigo:llegoALaBase() then
 
+            Eventos.emitir("enemigo_llego_base", enemigo)
             self.derrota = true
             self.motivoDerrota = "Los enemigos llegaron al final del recorrido"
-
+            Eventos.emitir("derrota",self,self.motivoDerrota)
             self:finalizarPartida()
 
             return
@@ -322,6 +370,7 @@ function Juego:actualizarJuego(dt)
         elseif enemigo.vida <= 0 then
 
             self.dinero = self.dinero + 10
+            Eventos.emitir("enemigo_muerto", enemigo)
             table.remove(self.enemigos,i)
         end
     end
@@ -331,6 +380,7 @@ function Juego:actualizarJuego(dt)
         local torre = self.torres[i]
 
         if torre.vida <= 0 then
+            Eventos.emitir("torre_destruida",torre)
             print("La torre fue destruida")
             table.remove(self.torres,i)
         end
@@ -371,7 +421,7 @@ function Juego:actualizarJuego(dt)
     if self.gestorOleadas.numeroOleada >= self.maxOleadas and #self.enemigos == 0 and self.gestorOleadas.estado ~= "oleada" then
 
         self.victoria = true
-
+          Eventos.emitir("victoria",self)
         self:finalizarPartida()
 
         print("VICTORIA: Eliminaste las 5 oleadas")
