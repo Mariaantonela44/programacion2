@@ -54,9 +54,10 @@ self.velocidadAnimacion = 0.1
 
 
 end
-
+--------------------------------------------------------------------------------------------------
 function Torre:recibirDanio(danio)
-
+    
+ local danioOriginal = danio
 
 danio = danio - self.escudo
 
@@ -69,6 +70,7 @@ Eventos.emitir("torre_recibio_danio",self,danio,danioOriginal)
 
 end
 
+-----------------------------------------------------------------------------------------------------
 -- Aplicar los bonus comprados en el inventario
 function Torre:agregarBonus(danio, escudo, alcance)
 
@@ -79,7 +81,7 @@ self.rango = self.rango + alcance
 
 
 end
-
+---------------------------------------------------------------------------------------------------
 function Torre:actualizar(dt, enemigos)
 
 
@@ -181,7 +183,7 @@ end
 
 
 end
-
+--------------------------------------------------------------------------------------------------------------
 function Torre:buscarObjetivo(enemigos)
 
 
@@ -210,7 +212,7 @@ return objetivo
 
 
 end
-
+-----------------------------------------------------------------------------------------------------------------
 function Torre:actualizarProyectiles(dt, enemigos)
 
 
@@ -227,7 +229,7 @@ end
 
 
 end
-
+------------------------------------------------------------------------------------------------------------------
 function Torre:dibujar()
 
 -- RANGO DE LA TORRE

@@ -78,7 +78,7 @@ function Jugador:init(x, y)
     -- SONIDO DE CAMINAR
     self.caminata = love.audio.newSource( "assets/sonidos/caminar.ogg", "static")
 end
-
+-------------------------------------------------------------------------------
 -- ACTUALIZAR
 function Jugador:actualizar(dt)
 
@@ -202,7 +202,7 @@ function Jugador:actualizar(dt)
         end
     end
 end
-
+-------------------------------------------------------------------------------------------------
 -- RECIBIR DAÑO
 function Jugador:recibirDanio(danio)
 
@@ -213,7 +213,7 @@ function Jugador:recibirDanio(danio)
     end
 
 end
-
+----------------------------------------------------------------------------------------------------
 -- ATAQUE
 function Jugador:atacar(enemigos)
 
@@ -243,7 +243,7 @@ function Jugador:atacar(enemigos)
 
     end
 end
-
+-----------------------------------------------------------------------------------------------------------
 -- DIBUJAR
 function Jugador:dibujar()
 
@@ -275,7 +275,7 @@ function Jugador:dibujar()
 
         end
     end
-
+    
     -- BARRA DE VIDA
     local anchoBarra = 50
     local porcentaje = self.vida / self.vidaMaxima

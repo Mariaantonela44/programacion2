@@ -38,6 +38,11 @@ function Juego:init()
 
     self.maxOleadas = 5
 
+----- EVENTOS-------------------------------------
+    self.mensajeEvento = ""
+    self.tiempoMensajeEvento = 0
+    self.flashDanio = 0
+--------------------------------------------------
     self.camino = {
         {x=908,y=711},
         {x=665,y=662},
@@ -89,51 +94,81 @@ function Juego:init()
     self.GolpeGeneradoJugador = love.audio.newSource("assets/sonidos/golpe.ogg","static")
     self.GolpeGeneradoOrco = love.audio.newSource("assets/sonidos/golpe1.ogg","static")
     self.TiroTorreta = love.audio.newSource("assets/sonidos/tiro.ogg","static")
-    Eventos.on("enemigo_muerto", function(enemigo)
+------------------------------------------------------------
+-- EVENTOS DEL JUEGO
+
+
+Eventos.on("enemigo_muerto", function(enemigo)
     print("EVENTO: Enemigo muerto")
-    end)
+    self:mostrarMensaje("+$10", 1)
+end)
 
-    Eventos.on("enemigo_llego_base", function(enemigo)
-        print("EVENTO: Un enemigo llegó a la base")
-    end)
 
-    Eventos.on("jugador_recibio_danio", function(jugador, danio)
-        print("EVENTO: El jugador recibió " .. danio .. " de daño")
-    end)
+Eventos.on("enemigo_llego_base", function(enemigo)
+    print("EVENTO: Un enemigo llegó a la base")
+    self:mostrarMensaje("¡UN ENEMIGO LLEGÓ A LA BASE!",2)
+end)
 
-    Eventos.on("jugador_muerto", function(jugador)
-        print("EVENTO: El jugador murió")
-    end)
 
-    Eventos.on("torre_destruida", function(torre)
-        print("EVENTO: Una torre fue destruida")
-    end)
+Eventos.on("jugador_recibio_danio", function(jugador, danio)
+    print("EVENTO: El jugador recibió ".. danio.. " de daño")
+    self:mostrarMensaje("¡RECIBISTE " .. danio .. " DE DAÑO!", 1)
+    self.flashDanio = 0.25
+    self.GolpeRecibidoJugador:stop()
+    self.GolpeRecibidoJugador:play()
+end)
 
-    Eventos.on("torre_recibio_danio", function(torre, danio)
-        print("EVENTO: Torre recibió " .. danio .. " de daño")
-    end)
+Eventos.on("jugador_muerto", function(jugador)
+    print("EVENTO: El jugador murió")
+    self:mostrarMensaje("¡EL JUGADOR MURIÓ!",3)
+end)
 
-    Eventos.on("torre_disparo", function(torre, enemigo, danio)
-        print("EVENTO: Torre disparó")
-    end)
 
-    Eventos.on("jugador_ataco", function(jugador)
-        print("EVENTO: El jugador atacó")
-    end)
+Eventos.on("torre_destruida", function(torre)
+    print("EVENTO: Una torre fue destruida")
+    self:mostrarMensaje("¡TORRE DESTRUIDA!",2)
+end)
 
-    Eventos.on("jugador_danio_enemigo", function(jugador, enemigo, danio)
-        print("EVENTO: Jugador hizo " .. danio .. " de daño")
-    end)
+Eventos.on("torre_recibio_danio", function(torre, danio)
+    print( "EVENTO: Torre recibió ".. danio.. " de daño")
 
-    Eventos.on("victoria", function(juego)
-        print("EVENTO: VICTORIA")
-    end)
+end)
 
-    Eventos.on("derrota", function(juego, motivo)
+Eventos.on("torre_disparo", function(torre, enemigo, danio)
+    print("EVENTO: Torre disparó")
+    self.TiroTorreta:stop()
+    self.TiroTorreta:play()
+end)
 
-        print("EVENTO: DERROTA - " .. motivo)
+Eventos.on("jugador_ataco", function(jugador)
+    print("EVENTO: El jugador atacó")
+    self.GolpeGeneradoJugador:stop()
+    self.GolpeGeneradoJugador:play()
+end)
 
-    end)
+Eventos.on("jugador_danio_enemigo", function(jugador, enemigo, danio)
+    print("EVENTO: Jugador hizo " .. danio.. " de daño")
+    self.GolpeGeneradoJugador:stop()
+    self.GolpeGeneradoJugador:play()
+end)
+
+Eventos.on("victoria", function(juego)
+    print("EVENTO: VICTORIA")
+    self.victoria = true
+    self.derrota = false
+    self.maquinaEstado:cambiar("finalizacion")
+end)
+
+
+Eventos.on("derrota", function(juego, motivo)
+    print("EVENTO: DERROTA - " .. motivo)
+    self.derrota = true
+    self.victoria = false
+    self.motivoDerrota = motivo
+    self.maquinaEstado:cambiar("finalizacion")
+end)
+------------------------------------------------------------------------------------------
+
     self.musicaJuego:setLooping(true)
     self.musicaVictoria:setLooping(false)
     self.musicaDerrota:setLooping(false)
@@ -159,7 +194,14 @@ function Juego:init()
 
     self.maquinaEstado:cambiar("comienzo")
 end
+-------------------------------------------------
+function Juego:mostrarMensaje(mensaje, tiempo)
 
+    self.mensajeEvento = mensaje
+    self.tiempoMensajeEvento = tiempo
+
+end
+------------------------------------------------
 function Juego:reiniciar()
 
     self.enemigos = {}
@@ -199,7 +241,7 @@ function Juego:reiniciar()
     self.musicaJuego:play()
 
 end
-
+-------------------------------------------------------------------------
 function Juego:finalizarPartida()
 
     if self.musicaJuego:isPlaying() then self.musicaJuego:stop() end
@@ -212,7 +254,7 @@ function Juego:finalizarPartida()
         self.musicaDerrota:play()
     end
 end
-
+-----------------------------------------------------------------------------
 function Juego:obtenerDatosMapa()
 
     local anchoPantalla = love.graphics.getWidth()
@@ -226,7 +268,7 @@ function Juego:obtenerDatosMapa()
 
     return anchoPantalla,altoPantalla,anchoMapa,altoMapa,escala,mapaX,mapaY
 end
-
+----------------------------------------------------------------------------------------
 function Juego:pantallaAMapa(x,y)
 
     local anchoPantalla,altoPantalla,anchoMapa,altoMapa,escala,mapaX,mapaY = self:obtenerDatosMapa()
@@ -236,7 +278,7 @@ function Juego:pantallaAMapa(x,y)
 
     return mapaXReal,mapaYReal
 end
-
+-------------------------------------------------------------------------------------------
 function Juego:EstaEnAgua(x,y)
 
     local mapaX,mapaY = self:pantallaAMapa(x,y)
@@ -252,7 +294,7 @@ function Juego:EstaEnAgua(x,y)
 
     return false
 end
-
+--------------------------------------------------------------------------------------
 function Juego:JugadorEstaEnAgua()
 
     local jugador = self.jugador
@@ -264,7 +306,7 @@ function Juego:JugadorEstaEnAgua()
         or self:EstaEnAgua(jugador.x,jugador.y - radio)
         or self:EstaEnAgua(jugador.x,jugador.y + radio)
 end
-
+-----------------------------------------------------------------------------------------
 function Juego:PosicionValida(x,y,radio)
 
     return not (
@@ -275,10 +317,35 @@ function Juego:PosicionValida(x,y,radio)
         or self:EstaEnAgua(x,y+radio)
     )
 end
-
+---------------------------------------------------------------------------------------------
 function Juego:actualizarJuego(dt)
 
     if self.victoria or self.derrota then return end
+
+       -- ACTUALIZAR MENSAJE DE EVENTO
+
+    if self.tiempoMensajeEvento > 0 then
+
+        self.tiempoMensajeEvento =
+            self.tiempoMensajeEvento - dt
+
+        if self.tiempoMensajeEvento <= 0 then
+
+            self.tiempoMensajeEvento = 0
+            self.mensajeEvento = ""
+
+        end
+    end
+
+
+    -- ACTUALIZAR EFECTO VISUAL DE DAÑO
+
+    if self.flashDanio > 0 then
+
+        self.flashDanio =
+            self.flashDanio - dt
+
+    end
 
     local jugadorXAnterior = self.jugador.x
     local jugadorYAnterior = self.jugador.y
@@ -338,8 +405,6 @@ function Juego:actualizarJuego(dt)
                 self.GolpeGeneradoOrco:stop()
                 self.GolpeGeneradoOrco:play()
 
-                self.GolpeRecibidoJugador:stop()
-                self.GolpeRecibidoJugador:play()
 
                 print("El jugador recibió daño. Vida: " .. self.jugador.vida)
 
@@ -427,7 +492,7 @@ function Juego:actualizarJuego(dt)
         print("VICTORIA: Eliminaste las 5 oleadas")
     end
 end
-
+--------------------------------------------------------------------------------------------------
 function Juego:teclaPresionada(tecla)
 
     if self.victoria or self.derrota then return end
@@ -435,9 +500,6 @@ function Juego:teclaPresionada(tecla)
     if tecla == "space" then
 
         self.jugador:atacar(self.enemigos)
-
-        self.GolpeGeneradoJugador:stop()
-        self.GolpeGeneradoJugador:play()
     end
 
     if tecla == "i" then
@@ -452,7 +514,7 @@ function Juego:teclaPresionada(tecla)
         end
     end
 end
-
+-----------------------------------------------------------------------------------------------------------
 function Juego:clicMouse(x,y,boton)
 
     if self.victoria or self.derrota then return end
@@ -539,7 +601,7 @@ function Juego:clicMouse(x,y,boton)
         print("Torre colocada en X: " .. x .. " Y: " .. y)
     end
 end
-
+---------------------------------------------------------------------------------------
 -- CÁMARA
 
 function Juego:actualizarCamara()
@@ -590,7 +652,7 @@ function Juego:actualizarCamara()
     end
 
 end
-
+--------------------------------------------------------------------------------------------------------
 -- DIBUJO 2: MUNDO
 function Juego:dibujarMundo()
 
@@ -617,7 +679,7 @@ function Juego:dibujarMundo()
     love.graphics.pop()
 
 end
-
+----------------------------------------------------------------------------------------------
 
 -- DIBUJO 1: JUGADOR + CÁMARA
 
@@ -640,7 +702,7 @@ function Juego:dibujarJugadorCamara()
 
 end
 
-
+-------------------------------------------------------------------------------------------------------
 function Juego:dibujarJuego()
 
     self:actualizarCamara()
@@ -662,6 +724,48 @@ function Juego:dibujarJuego()
     local anchoPantalla = love.graphics.getWidth()
 
     love.graphics.setColor(1,1,1)
+
+       -- EFECTO VISUAL DE DAÑO
+
+    if self.flashDanio > 0 then
+
+        local anchoPantalla =love.graphics.getWidth()
+
+        local altoPantalla =love.graphics.getHeight()
+
+        local intensidad =self.flashDanio / 0.25
+
+        love.graphics.setColor(1,0,0, intensidad * 0.25)
+
+        love.graphics.rectangle( "fill",0, 0, anchoPantalla,altoPantalla)
+
+        love.graphics.setColor(1,1,1,1)
+
+    end
+
+    -- MENSAJE DE EVENTO
+
+    if self.tiempoMensajeEvento > 0 then
+
+        local anchoPantalla =love.graphics.getWidth()
+
+        local altoPantalla =love.graphics.getHeight()
+
+        local texto =self.mensajeEvento
+
+        local fuente =love.graphics.getFont()
+
+        local anchoTexto =fuente:getWidth(texto)
+
+        love.graphics.setColor(0,0,0, 0.75)
+
+        love.graphics.rectangle("fill",anchoPantalla / 2 - anchoTexto / 2 - 20,altoPantalla / 2 - 30,anchoTexto + 40,50,8,8)
+
+        love.graphics.setColor(1,1,1,1)
+
+        love.graphics.print(texto,anchoPantalla / 2 - anchoTexto / 2,altoPantalla / 2 - 20)
+
+    end
 
     love.graphics.print("Dinero: $" .. self.dinero,10,10)
     love.graphics.print("Vida de la base: " .. self.vidaBase,10,30)
