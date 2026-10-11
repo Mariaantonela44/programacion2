@@ -18,7 +18,7 @@ function GestorOleadas:init()
     self.enemigosPorOleada = 5
 
 end
-
+-----------------------------------------------------------------------------------
 
 function GestorOleadas:actualizar(dt, enemigos, camino)
 

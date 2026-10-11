@@ -27,7 +27,7 @@ self.tiempoAnimacion = 0
 self.velocidadAnimacion = 0.1
 
 end
-
+-----------------------------------------------------------------------------------
 function Proyectil:actualizar(dt)
 
 
@@ -73,7 +73,7 @@ self.y = self.y + dy * self.velocidad * dt
 
 
 end
-
+-----------------------------------------------------------------------------------
 function Proyectil:dibujar()
 
 

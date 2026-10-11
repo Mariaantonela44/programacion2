@@ -28,18 +28,18 @@ function EstadoComienzo:init(juego)
         }
     }
 end
-
+-----------------------------------------------------------------------------------
 function EstadoComienzo:ingresar()
     print("Entrando al comienzo")
 end
-
+-----------------------------------------------------------------------------------
 function EstadoComienzo:salir()
     print("Saliendo del comienzo")
 end
-
+-----------------------------------------------------------------------------------
 function EstadoComienzo:actualizar(dt)
 end
-
+-----------------------------------------------------------------------------------
 function EstadoComienzo:clicMouse(x, y, boton)
 
     if boton ~= 1 then
@@ -77,7 +77,7 @@ function EstadoComienzo:clicMouse(x, y, boton)
     end
 
 end
-
+-----------------------------------------------------------------------------------
 function EstadoComienzo:dibujar()
         -- Pantalla del menú
     local anchoPantalla = love.graphics.getWidth()

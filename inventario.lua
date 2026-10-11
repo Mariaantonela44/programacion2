@@ -50,7 +50,7 @@ function Inventario:dibujar(dinero)
 
 
 end
-
+-----------------------------------------------------------------------------------
 function Inventario:clicMouse(x, y, boton, dinero)
 
     if boton ~= 1 then
@@ -133,13 +133,13 @@ function Inventario:clicMouse(x, y, boton, dinero)
     return dinero, nil
 
 end
-
+-----------------------------------------------------------------------------------
 function Inventario:abrir()
 
     self.abierto = true
 
 end
-
+-----------------------------------------------------------------------------------
 function Inventario:cerrar()
 
     self.abierto = false

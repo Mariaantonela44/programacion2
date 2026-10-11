@@ -10,6 +10,7 @@ require "estados"
 require "EstadoComienzo"
 require "EstadoJugando"
 require "EstadoFinalizacion"
+require "EstadoOpciones"
 require "Eventos"
 
 Juego = Class{}
@@ -20,7 +21,7 @@ function Juego:init()
     self.torres = {}
 
     self.dinero = 150
-    self.vidaBase = 10
+    self.oroObtenido = 0
 
     self.bonusDanio = 0
     self.bonusEscudo = 0
@@ -48,7 +49,7 @@ function Juego:init()
         {x=665,y=662},
         {x=473,y=628},
         {x=437,y=597},
-        {x=371,y=525},
+        {x=371,y=510},
         {x=198,y=510},
         {x=163,y=181},
         {x=243,y=123},
@@ -72,7 +73,7 @@ function Juego:init()
         {x=850,y=400,ancho=800,alto=400},
         {x=1150,y=300,ancho=200,alto=100},
         {x=550,y=550,ancho=150,alto=200},
-        {x=700,y=530,ancho=150,alto=300}
+        {x=700,y=530,ancho=150,alto=250}
     }
 
     self.gestorOleadas = GestorOleadas()
@@ -99,19 +100,16 @@ function Juego:init()
 
 
 Eventos.on("enemigo_muerto", function(enemigo)
-    print("EVENTO: Enemigo muerto")
     self:mostrarMensaje("+$10", 1)
 end)
 
 
 Eventos.on("enemigo_llego_base", function(enemigo)
-    print("EVENTO: Un enemigo llegó a la base")
     self:mostrarMensaje("¡UN ENEMIGO LLEGÓ A LA BASE!",2)
 end)
 
 
 Eventos.on("jugador_recibio_danio", function(jugador, danio)
-    print("EVENTO: El jugador recibió ".. danio.. " de daño")
     self:mostrarMensaje("¡RECIBISTE " .. danio .. " DE DAÑO!", 1)
     self.flashDanio = 0.25
     self.GolpeRecibidoJugador:stop()
@@ -119,41 +117,36 @@ Eventos.on("jugador_recibio_danio", function(jugador, danio)
 end)
 
 Eventos.on("jugador_muerto", function(jugador)
-    print("EVENTO: El jugador murió")
     self:mostrarMensaje("¡EL JUGADOR MURIÓ!",3)
 end)
 
 
 Eventos.on("torre_destruida", function(torre)
-    print("EVENTO: Una torre fue destruida")
     self:mostrarMensaje("¡TORRE DESTRUIDA!",2)
 end)
 
 Eventos.on("torre_recibio_danio", function(torre, danio)
-    print( "EVENTO: Torre recibió ".. danio.. " de daño")
+    self:mostrarMensaje("¡LA TORRE ESTA SIENDO ATACADA !",2)
 
 end)
 
 Eventos.on("torre_disparo", function(torre, enemigo, danio)
-    print("EVENTO: Torre disparó")
     self.TiroTorreta:stop()
     self.TiroTorreta:play()
 end)
 
 Eventos.on("jugador_ataco", function(jugador)
-    print("EVENTO: El jugador atacó")
     self.GolpeGeneradoJugador:stop()
     self.GolpeGeneradoJugador:play()
 end)
 
 Eventos.on("jugador_danio_enemigo", function(jugador, enemigo, danio)
     print("EVENTO: Jugador hizo " .. danio.. " de daño")
-    self.GolpeGeneradoJugador:stop()
-    self.GolpeGeneradoJugador:play()
+    self.GolpeRecibidoEnemigo:stop()
+    self.GolpeRecibidoEnemigo:play()
 end)
 
 Eventos.on("victoria", function(juego)
-    print("EVENTO: VICTORIA")
     self.victoria = true
     self.derrota = false
     self.maquinaEstado:cambiar("finalizacion")
@@ -161,7 +154,6 @@ end)
 
 
 Eventos.on("derrota", function(juego, motivo)
-    print("EVENTO: DERROTA - " .. motivo)
     self.derrota = true
     self.victoria = false
     self.motivoDerrota = motivo
@@ -189,7 +181,8 @@ end)
     self.maquinaEstado = MaquinaEstado{
         comienzo = function() return EstadoComienzo(self) end,
         jugando = function() return EstadoJugando(self) end,
-        finalizacion = function() return EstadoFinalizacion(self) end
+        finalizacion = function() return EstadoFinalizacion(self) end,
+        opciones = function()return EstadoOpciones(self) end
     }
 
     self.maquinaEstado:cambiar("comienzo")
@@ -208,6 +201,7 @@ function Juego:reiniciar()
     self.torres = {}
 
     self.dinero = 150
+    self.oroObtenido = 0
     self.vidaBase = 10
 
     self.bonusDanio = 0
@@ -227,6 +221,9 @@ function Juego:reiniciar()
     self.jugador = Jugador(961,0)
     self.inventario = Inventario()
     self.gestorOleadas = GestorOleadas()
+    self.mensajeEvento = ""
+    self.tiempoMensajeEvento = 0
+    self.flashDanio = 0
 
     local torre = Torre(290,148)
 
@@ -435,6 +432,7 @@ function Juego:actualizarJuego(dt)
         elseif enemigo.vida <= 0 then
 
             self.dinero = self.dinero + 10
+            self.oroObtenido = self.oroObtenido + 10
             Eventos.emitir("enemigo_muerto", enemigo)
             table.remove(self.enemigos,i)
         end
@@ -717,6 +715,7 @@ function Juego:dibujarJuego()
     self:dibujarJugadorCamara()
 
 
+
     -- INVENTARIO
     self.inventario:dibujar(self.dinero)
     --HUD
@@ -767,26 +766,64 @@ function Juego:dibujarJuego()
 
     end
 
-    love.graphics.print("Dinero: $" .. self.dinero,10,10)
-    love.graphics.print("Vida de la base: " .. self.vidaBase,10,30)
-    love.graphics.print("Oleada: " .. self.gestorOleadas.numeroOleada,10,50)
-    love.graphics.print("Vida jugador: " .. self.jugador.vida,10,70)
+    -- Panel de información
+    love.graphics.setColor(0, 0, 0, 0.75)
+    love.graphics.rectangle("fill", 10, 10, 190, 55, 6, 6)
 
-    local mouseX,mouseY = love.mouse.getPosition()
+    -- Mostrar dinero
+    love.graphics.setColor(1, 0.85, 0.2, 1)
+    love.graphics.print("DINERO: $" .. self.dinero, 20, 17)
 
-    love.graphics.print("Mouse X: " .. mouseX .. " Y: " .. mouseY,10,90)
+    -- Calcular porcentaje de vida
+    local vidaMaxima = 100
+    local porcentajeVida = math.max(0, math.min(
+        (self.jugador.vida / vidaMaxima) * 100, 100
+    ))
+
+
+    -- Mostrar porcentaje de vida
+   if porcentajeVida > 50 then
+        love.graphics.setColor(0.2, 1, 0.3, 1)
+    elseif porcentajeVida > 25 then
+        love.graphics.setColor(1, 0.8, 0.2, 1)
+    else
+        love.graphics.setColor(1, 0.2, 0.2, 1)
+    end
+
+    love.graphics.print("Vida del jugador: " .. math.floor(porcentajeVida) .. "%", 20, 38)
+
+    -- Restaurar color
+    love.graphics.setColor(1, 1, 1, 1)
+
+    --local mouseX,mouseY = love.mouse.getPosition()
+
+    --love.graphics.print("Mouse X: " .. mouseX .. " Y: " .. mouseY,10,90)
 
     if self.gestorOleadas.estado == "preparacion" then
+    local anchoPantalla = love.graphics.getWidth()
+    local altoPantalla = love.graphics.getHeight()
+    local panelAncho = 420
+    local panelAlto = 150
+    local panelX = (anchoPantalla - panelAncho) / 2
+    local panelY = (altoPantalla - panelAlto) / 8
 
-        love.graphics.print("PREPARACION",10,110)
-        love.graphics.print("Proxima oleada: " .. self.gestorOleadas.numeroOleada,10,130)
-        love.graphics.print("Tiempo: " .. math.ceil(self.gestorOleadas.tiempo) .. " segundos",10,150)
-        love.graphics.print("Preparate para la proxima oleada",10,170)
+    love.graphics.setColor(0.03, 0.03, 0.06, 0.90)
+    love.graphics.rectangle("fill",panelX,panelY,panelAncho,panelAlto,12,12)
+    love.graphics.setColor(0.65, 0.35, 0.95, 1)
+    love.graphics.setLineWidth(3)
+    love.graphics.rectangle("line",panelX,panelY,panelAncho,panelAlto,12,12)
+    -- Mensaje 
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.printf("ESPERANDO PRÓXIMA OLEADA",panelX,panelY + 20,panelAncho,"center")
 
-    else
+    -- Número de la próxima oleada
+    love.graphics.printf( "OLEADA " .. self.gestorOleadas.numeroOleada,panelX,panelY + 55,panelAncho,"center")
 
-        love.graphics.print("OLEADA EN CURSO",10,110)
-        love.graphics.print("Enemigos restantes: " .. #self.enemigos,10,130)
+    -- Contador regresivo
+    love.graphics.setColor(0.85, 0.55, 1, 1)
+    love.graphics.printf(math.ceil(self.gestorOleadas.tiempo) .. " segundos",panelX,panelY + 90,panelAncho,"center")
+    love.graphics.setColor(1, 1, 1, 1)
+
     end
 
     local panelX = anchoPantalla - 300

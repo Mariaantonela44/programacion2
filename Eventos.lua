@@ -11,7 +11,7 @@ function Eventos.on(nombre_evento, callback)
     table.insert(Eventos._oyentes[nombre_evento], callback)
 
 end
-
+-----------------------------------------------------------------------------------
 function Eventos.emitir(nombre_evento, ...)
 
     local lista = Eventos._oyentes[nombre_evento]

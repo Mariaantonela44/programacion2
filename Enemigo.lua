@@ -96,7 +96,7 @@ function Enemigo:init(x, y, camino)
 
 end
 
-
+-----------------------------------------------------------------------------------
 -- ACTUALIZAR DIRECCIÓN
 
 function Enemigo:actualizarDireccion(dx, dy)
@@ -113,7 +113,7 @@ function Enemigo:actualizarDireccion(dx, dy)
     end
 
 end
-
+-----------------------------------------------------------------------------------
 
 -- ACTUALIZAR
 
@@ -547,7 +547,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
 end
 
-
+-----------------------------------------------------------------------------------
 -- LLEGÓ A LA BASE
 
 function Enemigo:llegoALaBase()
@@ -555,7 +555,7 @@ function Enemigo:llegoALaBase()
     return self.llegoBase
 
 end
-
+-----------------------------------------------------------------------------------
 
 -- RECIBIR DAÑO
 
@@ -569,7 +569,7 @@ function Enemigo:recibirDanio(danio)
 
 end
 
-
+-----------------------------------------------------------------------------------
 -- DIBUJAR
 
 function Enemigo:dibujar()

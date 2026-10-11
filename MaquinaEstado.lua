@@ -9,7 +9,9 @@ function MaquinaEstado:init(estados)
         salir = function() end,
         actualizar = function() end,
         dibujar = function() end
+        
     }
+    
 
 end
 
@@ -36,13 +38,13 @@ function MaquinaEstado:dibujar()
     self.actual:dibujar()
 
 end
-
+-----------------------------------------------------------------------------------
 function MaquinaEstado:teclaPresionada(tecla)
     if self.actual.teclaPresionada then
         self.actual:teclaPresionada(tecla)
     end
 end
-
+-----------------------------------------------------------------------------------
 function MaquinaEstado:clicMouse(x, y, boton)
     if self.actual.clicMouse then
         self.actual:clicMouse(x, y, boton)
