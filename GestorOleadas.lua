@@ -7,9 +7,9 @@ function GestorOleadas:init()
     self.numeroOleada = 1
     self.estado = "preparacion"
 
-    self.tiempoPreparacion = 20
-    self.tiempoEntreOleadas = 15
-    self.tiempo = 20
+    self.tiempoPreparacion = 10
+    self.tiempoEntreOleadas = 5
+    self.tiempo = 10
 
     self.tiempoGeneracion = 0
     self.intervalo = 2
@@ -59,7 +59,7 @@ function GestorOleadas:actualizar(dt, enemigos, camino)
 
                 local enemigo = Enemigo( camino[1].x,  camino[1].y,camino)
 
-                enemigo.velocidad = 80 + (self.numeroOleada - 1) * 5
+                enemigo.velocidad = enemigo.velocidadBase + (self.numeroOleada - 1) * 5
 
                 table.insert(enemigos, enemigo)
 

@@ -8,7 +8,8 @@ function Enemigo:init(x, y, camino)
     self.camino = camino
     self.puntoActual = 1
 
-    self.velocidad = 80
+    self.velocidadBase = 150
+    self.velocidad = self.velocidadBase
     self.radio = 20
     self.vidaMaxima = 100
     self.vida = 100
@@ -26,7 +27,7 @@ function Enemigo:init(x, y, camino)
     -- Cuando encuentra un río, vuelve al camino
     self.siguiendoCamino = true
     self.distanciaRecorridaCamino = 0
-    self.distanciaParaBuscarTorre = 100
+    self.distanciaParaBuscarTorre = 300
     self.atacando = false
     self.frameAtaque = 1
     self.tiempoAtaqueAnimacion = 0

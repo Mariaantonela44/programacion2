@@ -76,6 +76,17 @@ function Juego:init()
         {x=700,y=530,ancho=150,alto=250}
     }
 
+    --ZONA AGRANDADA DEL RIO PARA TORRE
+
+            self.zonasAguaTorre = {
+        {x=0,y=470,ancho=200,alto=170},
+        {x=220,y=480,ancho=420,alto=210},
+        {x=780,y=320,ancho=820,alto=570},
+        {x=1110,y=280,ancho=260,alto=120},
+        {x=490,y=510,ancho=230,alto=370},
+        {x=700,y=490,ancho=200,alto=400}
+    }
+
     self.gestorOleadas = GestorOleadas()
 
     local torre = Torre(290,148)
@@ -302,6 +313,22 @@ function Juego:JugadorEstaEnAgua()
         or self:EstaEnAgua(jugador.x + radio,jugador.y)
         or self:EstaEnAgua(jugador.x,jugador.y - radio)
         or self:EstaEnAgua(jugador.x,jugador.y + radio)
+end
+--------------------------------------------------------------------------------------
+function Juego:EstaEnAguaTORRE(x,y)
+
+    local mapaX,mapaY = self:pantallaAMapa(x,y)
+
+    for i = 1,#self.zonasAguaTorre do
+
+        local zona = self.zonasAguaTorre[i]
+
+        if mapaX >= zona.x and mapaX <= zona.x + zona.ancho and mapaY >= zona.y and mapaY <= zona.y + zona.alto then
+            return true
+        end
+    end
+
+    return false
 end
 -----------------------------------------------------------------------------------------
 function Juego:PosicionValida(x,y,radio)
@@ -578,9 +605,9 @@ function Juego:clicMouse(x,y,boton)
         return
     end
 
-    if self:EstaEnAgua(x,y) then
+      if self:EstaEnAguaTORRE(x,y) then
 
-        print("No se puede construir una torre en el agua")
+        self:mostrarMensaje("Zona no permitida para colocar torres",2)
 
         return
     end
