@@ -4,7 +4,7 @@ Class = require 'lib.class'
 require "jugador"
 require "Torre"
 require "GestorOleadas"
-require "Inventario"
+require "inventario"
 require "MaquinaEstado"
 require "estados"
 require "EstadoComienzo"

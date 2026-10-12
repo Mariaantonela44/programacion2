@@ -3,12 +3,12 @@ EstadoOpciones = Class{__includes = Estado}
 function EstadoOpciones:init(juego)
     self.juego = juego
 
-    self.fondo = love.graphics.newImage("assets/menu/pantalla.png")
-    self.barraSonido = love.graphics.newImage("assets/menu/barraSonido.png")
-    self.circuloSonido = love.graphics.newImage("assets/menu/circuloSonido.png")
+    self.fondo = love.graphics.newImage("assets/Menu/pantalla.png")
+    self.barraSonido = love.graphics.newImage("assets/Menu/barraSonido.png")
+    self.circuloSonido = love.graphics.newImage("assets/Menu/circuloSonido.png")
 
-    self.botonVolver = love.graphics.newImage("assets/menu/volver.png")
-    self.botonVolverSeleccionado = love.graphics.newImage("assets/menu/volverSeleccion.png")
+    self.botonVolver = love.graphics.newImage("assets/Menu/volver.png")
+    self.botonVolverSeleccionado = love.graphics.newImage("assets/Menu/volverSeleccion.png")
 
     self.volumen = 0.5
     self.arrastrando = false

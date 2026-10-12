@@ -3,27 +3,27 @@ EstadoComienzo = Class{__includes = Estado}
 function EstadoComienzo:init(juego)
     self.juego = juego
       
-    self.pantalla = love.graphics.newImage("assets/menu/pantalla.png")
+    self.pantalla = love.graphics.newImage("assets/Menu/pantalla.png")
 
 
    self.botones = {
 
         {
-            normal = love.graphics.newImage("assets/menu/comenzar.png"),
-            seleccionado = love.graphics.newImage("assets/menu/comenzarSeleccion.png"),
+            normal = love.graphics.newImage("assets/Menu/comenzar.png"),
+            seleccionado = love.graphics.newImage("assets/Menu/comenzarSeleccion.png"),
             x = 415,y = 340
         },
 
         {
-            normal = love.graphics.newImage("assets/menu/opciones.png"),
-            seleccionado = love.graphics.newImage("assets/menu/opcionesSeleccion.png"),
+            normal = love.graphics.newImage("assets/Menu/opciones.png"),
+            seleccionado = love.graphics.newImage("assets/Menu/opcionesSeleccion.png"),
             x = 415, y = 420
         },
 
         {
-            normal = love.graphics.newImage("assets/menu/salir.png"),
+            normal = love.graphics.newImage("assets/Menu/Salir.png"),
 
-            seleccionado = love.graphics.newImage("assets/menu/SalirSeleccion.png"),
+            seleccionado = love.graphics.newImage("assets/Menu/SalirSeleccion.png"),
             x = 415,y = 500
         }
     }

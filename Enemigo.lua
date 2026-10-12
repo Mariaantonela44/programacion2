@@ -25,7 +25,8 @@ function Enemigo:init(x, y, camino)
 
     -- Cuando encuentra un río, vuelve al camino
     self.siguiendoCamino = true
-
+    self.distanciaRecorridaCamino = 0
+    self.distanciaParaBuscarTorre = 100
     self.atacando = false
     self.frameAtaque = 1
     self.tiempoAtaqueAnimacion = 0
@@ -167,43 +168,42 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
 
     -- BUSCAR TORRE MÁS CERCANA
+    if self.torreObjetivo == nil
+    and self.distanciaRecorridaCamino >= self.distanciaParaBuscarTorre then
+        local torreCercana = nil
+        local distanciaMenor = 250
 
-    local torreCercana = nil
-    local distanciaMenor = 250
+        for i = 1, #torres do
 
-    for i = 1, #torres do
+            local torre = torres[i]
 
-        local torre = torres[i]
+            if torre.vida > 0 then
 
-        if torre.vida > 0 then
+                local dx = torre.x - self.x
+                local dy = torre.y - self.y
 
-            local dx = torre.x - self.x
-            local dy = torre.y - self.y
+                local distancia =math.sqrt(dx * dx + dy * dy)
 
-            local distancia =
-                math.sqrt(dx * dx + dy * dy)
+                if distancia < distanciaMenor then
 
-            if distancia < distanciaMenor then
+                    distanciaMenor = distancia
+                    torreCercana = torre
 
-                distanciaMenor = distancia
-                torreCercana = torre
-
+                end
             end
         end
-    end
+        self.torreObjetivo = torreCercana
+        self.distanciaRecorridaCamino = 0
 
-
-    -- GUARDAR TORRE OBJETIVO
-
-    if torreCercana ~= nil then
-
-        if self.torreObjetivo == nil then
-
-            self.torreObjetivo = torreCercana
-
+        if torreCercana ~= nil then
+            self.siguiendoCamino = false
+        else
+            self.siguiendoCamino = true
         end
 
     end
+
+
 
 
     -- COMPROBAR SI LA TORRE SIGUE VIVA
@@ -216,6 +216,8 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
             -- Volver al camino
             self.siguiendoCamino = true
+            self.distanciaRecorridaCamino = 0
+            self.distanciaParaBuscarTorre = 100
 
         end
 
@@ -301,9 +303,9 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
 
             -- ENCONTRÓ EL RÍO
-
+            self.torreObjetivo = nil
             self.siguiendoCamino = true
-
+            self.distanciaRecorridaCamino = 0
             print( "El enemigo encontro agua y vuelve al camino")
 
         end
@@ -408,8 +410,7 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
         end
 
 
-        punto =
-            self.camino[self.puntoActual]
+        punto =self.camino[self.puntoActual]
 
         dx = punto.x - self.x
         dy = punto.y - self.y
@@ -436,62 +437,27 @@ function Enemigo:actualizar(dt, jugador, torres, posicionValida)
 
         -- COMPROBAR AGUA
 
-        if posicionValida == nil
-        or posicionValida(nuevoX, nuevoY) then
+        if posicionValida == nil or posicionValida(nuevoX, nuevoY) then
 
             self.x = nuevoX
             self.y = nuevoY
             self.caminando = true
+             self.distanciaRecorridaCamino =self.distanciaRecorridaCamino + self.velocidad * dt
 
         else
 
             self.caminando = false
+             -- Reiniciar el tramo para volver a buscar una torre
+            self.torreObjetivo = nil
+            self.siguiendoCamino = true
+            self.distanciaRecorridaCamino = 0
 
         end
 
     end
 
 
-    -- COMPROBAR SI AHORA PUEDE IR HACIA LA TORRE
 
-    if self.torreObjetivo ~= nil
-    and self.torreObjetivo.vida > 0 then
-
-        local torre = self.torreObjetivo
-
-        local dxTorre = torre.x - self.x
-        local dyTorre = torre.y - self.y
-
-        local distanciaTorre =
-            math.sqrt( dxTorre * dxTorre + dyTorre * dyTorre)
-
-
-        if distanciaTorre <= self.rangoAtaque then
-
-            self.siguiendoCamino = false
-
-        elseif distanciaTorre > 0 then
-
-            local dirTorreX = dxTorre / distanciaTorre
-
-            local dirTorreY =dyTorre / distanciaTorre
-
-
-            local pruebaX =self.x + dirTorreX * math.min(10, self.velocidad * dt)
-
-            local pruebaY = self.y + dirTorreY *  math.min(10, self.velocidad * dt)
-
-
-            -- Si desde este punto ya puede ir hacia la torre,
-            -- deja el camino.
-
-            if posicionValida == nil or posicionValida(pruebaX, pruebaY) then
-
-                self.siguiendoCamino = false
-
-            end
-        end
-    end
 
 
     -- SONIDO DE CAMINAR
