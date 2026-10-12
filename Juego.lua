@@ -568,7 +568,7 @@ function Juego:clicMouse(x,y,boton)
                 torre.tieneBonusDanio = true
             end
 
-            print("Las torres ahora hacen mas daño")
+            self:mostrarMensaje("Las torres ahora hacen mas daño",2)
 
         elseif compra == "escudo" then
 
@@ -584,7 +584,7 @@ function Juego:clicMouse(x,y,boton)
                 torre.tieneBonusEscudo = true
             end
 
-            print("Las torres tienen mas escudo")
+            self:mostrarMensaje("Las torres tienen mas escudo",2)
 
         elseif compra == "alcance" then
 
@@ -599,7 +599,7 @@ function Juego:clicMouse(x,y,boton)
                 torre.tiempoAlcance = 10
             end
 
-            print("Las torres tienen mas alcance")
+          self:mostrarMensaje ("Las torres tienen mas alcance",2)
         end
 
         return
